@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "PowerShell(node -v)",
+      "PowerShell(npm -v)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Users/danny/AppData/Roaming/**)",
+      "Bash(where.exe node *)",
+      "PowerShell(Test-Path \"C:\\\\Program Files\\\\nodejs\\\\node.exe\"; $env:PATH -split ';' | Select-String -Pattern 'nodejs'; [System.Environment]::GetEnvironmentVariable\\('PATH','Machine'\\) -split ';' | Select-String -Pattern 'nodejs')",
+      "PowerShell($env:Path += \";C:\\\\Program Files\\\\nodejs\"; node -v; npm -v)",
+      "Bash(rm -rf \"/c/Users/danny/OneDrive/Desktop/6C/hvac-sales-portal\" *)",
+      "Bash(winget search *)",
+      "Bash(winget install *)",
+      "Bash(where.exe stripe *)",
+      "Read(//c/Users/danny/AppData/Local/Microsoft/WinGet/**)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/sign-in)",
+      "Bash(taskkill //F //PID 29188)"
+    ]
+  }
+}

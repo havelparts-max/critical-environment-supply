@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  SALES
+}
+
+enum PayoutMethod {
+  ZELLE
+  VENMO
+  CHECK
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum CommissionStatus {
+  UNPAID
+  PAID
+}
+
+model User {
+  id            String               @id @default(cuid())
+  name          String
+  email         String               @unique
+  passwordHash  String
+  role          Role                 @default(SALES)
+  active        Boolean              @default(true)
+  createdAt     DateTime             @default(now())
+  payoutProfile StaffPayoutProfile?
+  orders        Order[]
+  commissions   Commission[]
+}
+
+/// Only the fields a chosen payout method needs are populated; the rest stay null.
+/// Contact/address values are encrypted at rest (see src/lib/crypto.ts) - never store raw account numbers here.
+model StaffPayoutProfile {
+  id                     String       @id @default(cuid())
+  userId                 String       @unique
+  user                   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  method                 PayoutMethod
+  encryptedZelleContact  String?
+  encryptedVenmoUsername String?
+  encryptedCheckAddress  String?
+  updatedAt              DateTime     @updatedAt
+}
+
+model Product {
+  id            String      @id @default(cuid())
+  sku           String      @unique
+  name          String
+  description   String?
+  vendor        String?
+  category      String?
+  baseCost      Decimal     @db.Decimal(10, 2)
+  markupPercent Decimal     @default(20) @db.Decimal(5, 2)
+  price         Decimal     @db.Decimal(10, 2)
+  imageUrl      String?
+  active        Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  orderItems    OrderItem[]
+}
+
+model Order {
+  id                    String      @id @default(cuid())
+  staffId               String
+  staff                 User        @relation(fields: [staffId], references: [id])
+  customerName          String
+  customerCompany       String?
+  customerEmail         String?
+  customerPhone         String?
+
+  // Required by the order-entry form (see zod schema in the orders API route);
+  // nullable here only so existing rows from before this field existed stay valid.
+  billingLine1      String?
+  billingLine2      String?
+  billingCity       String?
+  billingState      String?
+  billingPostalCode String?
+  billingCountry    String  @default("US")
+
+  shippingSameAsBilling Boolean @default(true)
+  shippingLine1         String?
+  shippingLine2         String?
+  shippingCity          String?
+  shippingState         String?
+  shippingPostalCode    String?
+  shippingCountry       String?
+
+  status                OrderStatus @default(PENDING)
+  stripePaymentIntentId String?     @unique
+  subtotal              Decimal     @db.Decimal(10, 2)
+  total                 Decimal     @db.Decimal(10, 2)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  items                 OrderItem[]
+  commission            Commission?
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2)
+  lineTotal Decimal @db.Decimal(10, 2)
+}
+
+model Commission {
+  id        String           @id @default(cuid())
+  orderId   String           @unique
+  order     Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  staffId   String
+  staff     User             @relation(fields: [staffId], references: [id])
+  rate      Decimal          @db.Decimal(5, 2)
+  amount    Decimal          @db.Decimal(10, 2)
+  status    CommissionStatus @default(UNPAID)
+  paidAt    DateTime?
+  createdAt DateTime         @default(now())
+}
+
+/// Singleton settings row (id is always 1).
+model AppSettings {
+  id                    Int     @id @default(1)
+  commissionRatePercent Decimal @default(10) @db.Decimal(5, 2)
+  defaultMarkupPercent  Decimal @default(20) @db.Decimal(5, 2)
+}

@@ -1,0 +1,15 @@
+-- AlterTable
+ALTER TABLE "Order" ADD COLUMN     "billingCity" TEXT,
+ADD COLUMN     "billingCountry" TEXT NOT NULL DEFAULT 'US',
+ADD COLUMN     "billingLine1" TEXT,
+ADD COLUMN     "billingLine2" TEXT,
+ADD COLUMN     "billingPostalCode" TEXT,
+ADD COLUMN     "billingState" TEXT,
+ADD COLUMN     "customerCompany" TEXT,
+ADD COLUMN     "shippingCity" TEXT,
+ADD COLUMN     "shippingCountry" TEXT,
+ADD COLUMN     "shippingLine1" TEXT,
+ADD COLUMN     "shippingLine2" TEXT,
+ADD COLUMN     "shippingPostalCode" TEXT,
+ADD COLUMN     "shippingSameAsBilling" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "shippingState" TEXT;
