@@ -6,6 +6,9 @@ export default function AdminHome() {
       <h1 className="text-xl font-semibold">Admin</h1>
       <ul className="space-y-2 text-sm underline">
         <li>
+          <Link href="/admin/orders">All orders</Link>
+        </li>
+        <li>
           <Link href="/admin/inventory">Inventory import & catalog</Link>
         </li>
         <li>

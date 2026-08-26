@@ -75,8 +75,8 @@ model Product {
 
 model Order {
   id                    String      @id @default(cuid())
-  staffId               String
-  staff                 User        @relation(fields: [staffId], references: [id])
+  staffId               String?
+  staff                 User?       @relation(fields: [staffId], references: [id])
   customerName          String
   customerCompany       String?
   customerEmail         String?

@@ -9,11 +9,19 @@ export default auth((req) => {
   const isApiRoute = nextUrl.pathname.startsWith("/api/");
   const isAdminRoute = nextUrl.pathname.startsWith("/admin") || nextUrl.pathname.startsWith("/api/admin");
   const isSignInRoute = nextUrl.pathname.startsWith("/sign-in");
+  const isPublicRoute =
+    nextUrl.pathname === "/" ||
+    nextUrl.pathname.startsWith("/api/products") ||
+    nextUrl.pathname.startsWith("/api/storefront");
 
   if (isSignInRoute) {
     if (isLoggedIn) {
       return NextResponse.redirect(new URL("/orders", nextUrl));
     }
+    return NextResponse.next();
+  }
+
+  if (isPublicRoute) {
     return NextResponse.next();
   }
 

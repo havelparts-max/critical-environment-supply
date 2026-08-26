@@ -12,6 +12,7 @@ export default async function NavBar() {
       <nav className="flex gap-4 text-sm">
         <Link href="/orders">Orders</Link>
         <Link href="/account/payout">Payout Info</Link>
+        {isAdmin && <Link href="/admin/orders">All Orders</Link>}
         {isAdmin && <Link href="/admin/inventory">Inventory</Link>}
         {isAdmin && <Link href="/admin/commissions">Commissions</Link>}
         {isAdmin && <Link href="/admin/staff">Staff</Link>}

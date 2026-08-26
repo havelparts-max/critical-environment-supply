@@ -41,6 +41,12 @@ async function handlePaymentSucceeded(paymentIntentId: string) {
   });
   if (!order || order.status === "PAID") return; // already processed - webhook retries are idempotent
 
+  if (!order.staffId) {
+    // Self-checkout order - no staff to attribute a commission to.
+    await prisma.order.update({ where: { id: order.id }, data: { status: "PAID" } });
+    return;
+  }
+
   const settings = await prisma.appSettings.findUnique({ where: { id: 1 } });
   const rate = settings?.commissionRatePercent ?? 10;
   const amount = order.total.mul(rate).div(100);
