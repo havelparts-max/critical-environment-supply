@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 
 interface Product {
   id: string;
@@ -78,33 +81,23 @@ export default function InventoryPage() {
 
   return (
     <main className="mx-auto max-w-4xl space-y-8 p-6">
-      <section>
+      <Card className="p-6">
         <h1 className="text-xl font-semibold">Inventory Import</h1>
-        <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+        <p className="mt-1 text-sm text-muted">
           Upload a CSV or XLSX export (columns: sku, name, description, vendor, category, cost, markupPercent).
           The 20% markup is applied automatically to cost when markupPercent is left blank.
         </p>
         <form onSubmit={handleImport} className="mt-3 flex items-center gap-3">
-          <input
-            type="file"
-            name="file"
-            accept=".csv,.xlsx"
-            required
-            className="text-sm"
-          />
-          <button
-            type="submit"
-            disabled={importing}
-            className="rounded bg-black px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
-          >
+          <input type="file" name="file" accept=".csv,.xlsx" required className="text-sm text-muted" />
+          <Button type="submit" size="sm" disabled={importing}>
             {importing ? "Importing..." : "Import"}
-          </button>
+          </Button>
         </form>
         {importResult && (
-          <div className="mt-3 rounded border border-black/10 p-3 text-sm dark:border-white/10">
+          <div className="mt-3 rounded-lg border border-border bg-muted-bg p-3 text-sm">
             <p>Imported {importResult.imported} products.</p>
             {importResult.errors.length > 0 && (
-              <ul className="mt-2 list-disc pl-5 text-red-700 dark:text-red-400">
+              <ul className="mt-2 list-disc pl-5 text-destructive">
                 {importResult.errors.map((e) => (
                   <li key={e.row}>
                     Row {e.row}: {e.message}
@@ -114,54 +107,56 @@ export default function InventoryPage() {
             )}
           </div>
         )}
-      </section>
+      </Card>
 
-      <section>
+      <Card className="p-6">
         <h2 className="text-lg font-semibold">Add a product manually</h2>
         <form onSubmit={handleAddProduct} className="mt-3 grid grid-cols-2 gap-3 text-sm">
-          <input name="sku" placeholder="SKU" required className="rounded border border-black/15 bg-transparent px-2 py-1 dark:border-white/20" />
-          <input name="name" placeholder="Name" required className="rounded border border-black/15 bg-transparent px-2 py-1 dark:border-white/20" />
-          <input name="vendor" placeholder="Vendor" className="rounded border border-black/15 bg-transparent px-2 py-1 dark:border-white/20" />
-          <input name="category" placeholder="Category" className="rounded border border-black/15 bg-transparent px-2 py-1 dark:border-white/20" />
-          <input name="cost" type="number" step="0.01" placeholder="Cost" required className="rounded border border-black/15 bg-transparent px-2 py-1 dark:border-white/20" />
-          <input name="markupPercent" type="number" step="0.01" placeholder="Markup % (default 20)" className="rounded border border-black/15 bg-transparent px-2 py-1 dark:border-white/20" />
-          <input name="description" placeholder="Description" className="col-span-2 rounded border border-black/15 bg-transparent px-2 py-1 dark:border-white/20" />
-          <button type="submit" className="col-span-2 rounded bg-black px-3 py-1.5 font-medium text-white dark:bg-white dark:text-black">
+          <Input name="sku" placeholder="SKU" required />
+          <Input name="name" placeholder="Name" required />
+          <Input name="vendor" placeholder="Vendor" />
+          <Input name="category" placeholder="Category" />
+          <Input name="cost" type="number" step="0.01" placeholder="Cost" required />
+          <Input name="markupPercent" type="number" step="0.01" placeholder="Markup % (default 20)" />
+          <Input name="description" placeholder="Description" className="col-span-2" />
+          <Button type="submit" className="col-span-2">
             Add product
-          </button>
+          </Button>
         </form>
-        {addError && <p className="mt-2 text-sm text-red-700 dark:text-red-400">{addError}</p>}
-      </section>
+        {addError && <p className="mt-2 text-sm text-destructive">{addError}</p>}
+      </Card>
 
-      <section>
-        <h2 className="text-lg font-semibold">Catalog ({products.length})</h2>
-        <div className="mt-3 overflow-x-auto">
+      <Card className="overflow-hidden">
+        <div className="border-b border-border p-6 pb-4">
+          <h2 className="text-lg font-semibold">Catalog ({products.length})</h2>
+        </div>
+        <div className="max-h-[32rem] overflow-auto">
           <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-black/10 dark:border-white/10">
-                <th className="py-1 pr-3">SKU</th>
-                <th className="py-1 pr-3">Name</th>
-                <th className="py-1 pr-3">Vendor</th>
-                <th className="py-1 pr-3">Cost</th>
-                <th className="py-1 pr-3">Markup</th>
-                <th className="py-1 pr-3">Price</th>
+            <thead className="sticky top-0 bg-card">
+              <tr className="border-b border-border text-muted">
+                <th className="px-4 py-2 font-medium">SKU</th>
+                <th className="px-4 py-2 font-medium">Name</th>
+                <th className="px-4 py-2 font-medium">Vendor</th>
+                <th className="px-4 py-2 font-medium">Cost</th>
+                <th className="px-4 py-2 font-medium">Markup</th>
+                <th className="px-4 py-2 font-medium">Price</th>
               </tr>
             </thead>
             <tbody>
               {products.map((p) => (
-                <tr key={p.id} className="border-b border-black/5 dark:border-white/5">
-                  <td className="py-1 pr-3">{p.sku}</td>
-                  <td className="py-1 pr-3">{p.name}</td>
-                  <td className="py-1 pr-3">{p.vendor}</td>
-                  <td className="py-1 pr-3">${p.baseCost}</td>
-                  <td className="py-1 pr-3">{p.markupPercent}%</td>
-                  <td className="py-1 pr-3">${p.price}</td>
+                <tr key={p.id} className="border-b border-border last:border-0">
+                  <td className="px-4 py-2 text-muted">{p.sku}</td>
+                  <td className="px-4 py-2">{p.name}</td>
+                  <td className="px-4 py-2">{p.vendor}</td>
+                  <td className="px-4 py-2">${p.baseCost}</td>
+                  <td className="px-4 py-2">{p.markupPercent}%</td>
+                  <td className="px-4 py-2 font-medium">${p.price}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </section>
+      </Card>
     </main>
   );
 }

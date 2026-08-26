@@ -1,5 +1,7 @@
 "use client";
 
+import Input from "@/components/ui/Input";
+
 export interface Address {
   line1: string;
   line2: string;
@@ -39,48 +41,44 @@ export default function AddressFields({
 
   return (
     <div className="grid grid-cols-2 gap-3">
-      <input
+      <Input
         value={value.line1}
         onChange={(e) => set("line1", e.target.value)}
         placeholder="Address line 1"
         aria-label={`${prefix} address line 1`}
-        className="col-span-2 rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
+        className="col-span-2"
       />
-      <input
+      <Input
         value={value.line2}
         onChange={(e) => set("line2", e.target.value)}
         placeholder="Address line 2 (optional)"
         aria-label={`${prefix} address line 2`}
-        className="col-span-2 rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
+        className="col-span-2"
       />
-      <input
+      <Input
         value={value.city}
         onChange={(e) => set("city", e.target.value)}
         placeholder="City"
         aria-label={`${prefix} city`}
-        className="rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
       />
-      <input
+      <Input
         value={value.state}
         onChange={(e) => set("state", e.target.value)}
         placeholder="State"
         aria-label={`${prefix} state`}
-        className="rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
       />
-      <input
+      <Input
         value={value.postalCode}
         onChange={(e) => set("postalCode", e.target.value)}
         placeholder="ZIP / postal code"
         aria-label={`${prefix} postal code`}
-        className="rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
       />
-      <input
+      <Input
         value={value.country}
         onChange={(e) => set("country", e.target.value.toUpperCase())}
         placeholder="Country (2-letter, e.g. US)"
         maxLength={2}
         aria-label={`${prefix} country`}
-        className="rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
       />
     </div>
   );

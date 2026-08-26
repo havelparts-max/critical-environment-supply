@@ -6,6 +6,9 @@ import { Elements } from "@stripe/react-stripe-js";
 import { getStripe } from "@/lib/stripeClient";
 import CheckoutForm from "@/components/CheckoutForm";
 import AddressFields, { type Address, emptyAddress, addressComplete } from "@/components/AddressFields";
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 
 interface Product {
   id: string;
@@ -19,6 +22,20 @@ interface Product {
 interface CartLine {
   product: Product;
   quantity: number;
+}
+
+function ProductIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-8 w-8 text-primary">
+      <path
+        d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5v-7Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path d="M4 8.5 12 13l8-4.5M12 13v7" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+  );
 }
 
 export default function Storefront() {
@@ -66,6 +83,7 @@ export default function Storefront() {
   }
 
   const total = cart.reduce((sum, line) => sum + Number(line.product.price) * line.quantity, 0);
+  const itemCount = cart.reduce((sum, line) => sum + line.quantity, 0);
 
   async function handleCheckout() {
     setError(null);
@@ -113,158 +131,194 @@ export default function Storefront() {
     }
   }
 
+  const Header = (
+    <header className="sticky top-0 z-10 border-b border-border bg-card/80 backdrop-blur">
+      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+        <span className="text-sm font-semibold tracking-tight">Critical Environment Supply</span>
+        <Link href="/sign-in" className="text-sm text-muted transition-colors hover:text-foreground">
+          Staff sign in
+        </Link>
+      </div>
+    </header>
+  );
+
   if (checkout) {
     return (
-      <main className="mx-auto max-w-lg space-y-4 p-6">
-        <h1 className="text-xl font-semibold">Payment</h1>
-        <Elements stripe={getStripe()} options={{ clientSecret: checkout.clientSecret }}>
-          <CheckoutForm
-            orderId={checkout.orderId}
-            billingDetails={{
-              name: customerCompany || customerName,
-              address: {
-                line1: billing.line1,
-                line2: billing.line2 || undefined,
-                city: billing.city,
-                state: billing.state,
-                postal_code: billing.postalCode,
-                country: billing.country,
-              },
-            }}
-          />
-        </Elements>
-      </main>
+      <div className="min-h-full">
+        {Header}
+        <main className="mx-auto max-w-lg space-y-4 p-6">
+          <Card className="p-6">
+            <h1 className="text-xl font-semibold">Payment</h1>
+            <p className="mt-1 text-sm text-muted">Order total: ${total.toFixed(2)}</p>
+            <div className="mt-4">
+              <Elements stripe={getStripe()} options={{ clientSecret: checkout.clientSecret }}>
+                <CheckoutForm
+                  orderId={checkout.orderId}
+                  billingDetails={{
+                    name: customerCompany || customerName,
+                    address: {
+                      line1: billing.line1,
+                      line2: billing.line2 || undefined,
+                      city: billing.city,
+                      state: billing.state,
+                      postal_code: billing.postalCode,
+                      country: billing.country,
+                    },
+                  }}
+                />
+              </Elements>
+            </div>
+          </Card>
+        </main>
+      </div>
     );
   }
 
   return (
-    <div className="flex min-h-full flex-col">
-      <header className="flex items-center justify-between border-b border-black/10 px-6 py-3 dark:border-white/10">
-        <span className="font-semibold">Critical Environment Supply</span>
-        <Link href="/sign-in" className="text-sm underline">
-          Staff sign in
-        </Link>
-      </header>
+    <div className="min-h-full">
+      {Header}
 
-      <main className="mx-auto w-full max-w-3xl space-y-6 p-6">
-        <div>
-          <h1 className="text-2xl font-semibold">Shop HVAC parts</h1>
-          <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-            Browse our catalog and check out securely below.
+      <section className="border-b border-border bg-gradient-to-b from-primary/5 to-transparent">
+        <div className="mx-auto max-w-5xl px-6 py-14 text-center">
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">HVAC parts & controls, in stock</h1>
+          <p className="mx-auto mt-3 max-w-xl text-muted">
+            Browse our full catalog and check out securely — no account required.
           </p>
+          <div className="mx-auto mt-6 max-w-lg">
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by name, SKU, or vendor..."
+              className="py-2.5 shadow-sm"
+            />
+          </div>
         </div>
+      </section>
 
+      <main className="mx-auto max-w-5xl space-y-10 p-6">
         <section>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search products by name, SKU, vendor..."
-            className="w-full rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
-          />
-          <ul className="mt-2 divide-y divide-black/5 dark:divide-white/5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {results.map((product) => (
-              <li key={product.id} className="flex items-center justify-between py-2 text-sm">
-                <span>
-                  {product.name} <span className="text-black/50 dark:text-white/50">({product.sku})</span>
-                </span>
-                <span className="flex items-center gap-3">
-                  <span>${product.price}</span>
-                  <button
-                    onClick={() => addToCart(product)}
-                    className="rounded bg-black px-2 py-1 text-xs font-medium text-white dark:bg-white dark:text-black"
-                  >
+              <Card key={product.id} className="flex flex-col p-4">
+                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <ProductIcon />
+                </div>
+                <h3 className="text-sm font-medium leading-snug">{product.name}</h3>
+                <p className="mt-1 text-xs text-muted">
+                  {product.vendor ? `${product.vendor} · ` : ""}
+                  {product.sku}
+                </p>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-lg font-semibold">${product.price}</span>
+                  <Button size="sm" onClick={() => addToCart(product)}>
                     Add
-                  </button>
-                </span>
-              </li>
+                  </Button>
+                </div>
+              </Card>
             ))}
             {results.length === 0 && (
-              <li className="py-2 text-sm text-black/60 dark:text-white/60">No products found.</li>
+              <p className="col-span-full py-8 text-center text-sm text-muted">No products found.</p>
             )}
-          </ul>
+          </div>
+        </section>
+
+        <section id="cart">
+          <Card className="p-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Cart</h2>
+              {itemCount > 0 && (
+                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                  {itemCount} item{itemCount === 1 ? "" : "s"}
+                </span>
+              )}
+            </div>
+            {cart.length === 0 ? (
+              <p className="mt-3 text-sm text-muted">No items yet — add something from the catalog above.</p>
+            ) : (
+              <ul className="mt-3 divide-y divide-border">
+                {cart.map((line) => (
+                  <li key={line.product.id} className="flex items-center justify-between py-3 text-sm">
+                    <span>{line.product.name}</span>
+                    <span className="flex items-center gap-3">
+                      <input
+                        type="number"
+                        min={0}
+                        value={line.quantity}
+                        onChange={(e) => updateQuantity(line.product.id, Number(e.target.value))}
+                        className="w-16 rounded-lg border border-border bg-card px-2 py-1 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                      <span className="w-20 text-right font-medium">
+                        ${(Number(line.product.price) * line.quantity).toFixed(2)}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {cart.length > 0 && (
+              <div className="mt-3 flex justify-between border-t border-border pt-3 text-base font-semibold">
+                <span>Total</span>
+                <span>${total.toFixed(2)}</span>
+              </div>
+            )}
+          </Card>
+        </section>
+
+        <section className="grid gap-6 sm:grid-cols-2">
+          <Card className="space-y-3 p-6">
+            <h2 className="text-lg font-semibold">Your info</h2>
+            <Input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Your name" />
+            <Input
+              value={customerCompany}
+              onChange={(e) => setCustomerCompany(e.target.value)}
+              placeholder="Company name (optional)"
+            />
+            <Input
+              value={customerEmail}
+              onChange={(e) => setCustomerEmail(e.target.value)}
+              placeholder="Email"
+              type="email"
+            />
+            <Input
+              value={customerPhone}
+              onChange={(e) => setCustomerPhone(e.target.value)}
+              placeholder="Phone (optional)"
+            />
+          </Card>
+
+          <Card className="space-y-3 p-6">
+            <h2 className="text-lg font-semibold">Billing address</h2>
+            <AddressFields value={billing} onChange={setBilling} prefix="Billing" />
+          </Card>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold">Cart</h2>
-          {cart.length === 0 && <p className="text-sm text-black/60 dark:text-white/60">No items yet.</p>}
-          <ul className="divide-y divide-black/5 dark:divide-white/5">
-            {cart.map((line) => (
-              <li key={line.product.id} className="flex items-center justify-between py-2 text-sm">
-                <span>{line.product.name}</span>
-                <span className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min={0}
-                    value={line.quantity}
-                    onChange={(e) => updateQuantity(line.product.id, Number(e.target.value))}
-                    className="w-16 rounded border border-black/15 bg-transparent px-2 py-1 dark:border-white/20"
-                  />
-                  <span>${(Number(line.product.price) * line.quantity).toFixed(2)}</span>
-                </span>
-              </li>
-            ))}
-          </ul>
-          {cart.length > 0 && <p className="mt-2 text-right font-medium">Total: ${total.toFixed(2)}</p>}
+          <Card className="space-y-3 p-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Shipping address</h2>
+              <label className="flex items-center gap-2 text-sm text-muted">
+                <input
+                  type="checkbox"
+                  checked={shippingSameAsBilling}
+                  onChange={(e) => setShippingSameAsBilling(e.target.checked)}
+                  className="accent-primary"
+                />
+                Same as billing
+              </label>
+            </div>
+            {!shippingSameAsBilling && <AddressFields value={shipping} onChange={setShipping} prefix="Shipping" />}
+          </Card>
         </section>
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-semibold">Your info</h2>
-          <input
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            placeholder="Your name"
-            className="w-full rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
-          />
-          <input
-            value={customerCompany}
-            onChange={(e) => setCustomerCompany(e.target.value)}
-            placeholder="Company name (optional)"
-            className="w-full rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
-          />
-          <input
-            value={customerEmail}
-            onChange={(e) => setCustomerEmail(e.target.value)}
-            placeholder="Email"
-            type="email"
-            className="w-full rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
-          />
-          <input
-            value={customerPhone}
-            onChange={(e) => setCustomerPhone(e.target.value)}
-            placeholder="Phone (optional)"
-            className="w-full rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
-          />
-        </section>
+        {error && (
+          <p className="rounded-lg bg-destructive/10 px-4 py-2 text-sm text-destructive">{error}</p>
+        )}
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-semibold">Billing address</h2>
-          <AddressFields value={billing} onChange={setBilling} prefix="Billing" />
-        </section>
-
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Shipping address</h2>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={shippingSameAsBilling}
-                onChange={(e) => setShippingSameAsBilling(e.target.checked)}
-              />
-              Same as billing
-            </label>
-          </div>
-          {!shippingSameAsBilling && <AddressFields value={shipping} onChange={setShipping} prefix="Shipping" />}
-        </section>
-
-        {error && <p className="text-sm text-red-700 dark:text-red-400">{error}</p>}
-
-        <button
-          onClick={handleCheckout}
-          disabled={submitting}
-          className="rounded bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
-        >
-          {submitting ? "Preparing payment..." : "Continue to payment"}
-        </button>
+        <div className="flex justify-end">
+          <Button size="md" onClick={handleCheckout} disabled={submitting} className="px-6 py-3 text-base">
+            {submitting ? "Preparing payment..." : `Continue to payment${cart.length ? ` · $${total.toFixed(2)}` : ""}`}
+          </Button>
+        </div>
       </main>
     </div>
   );

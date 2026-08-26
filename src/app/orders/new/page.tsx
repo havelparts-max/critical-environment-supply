@@ -5,6 +5,9 @@ import { Elements } from "@stripe/react-stripe-js";
 import { getStripe } from "@/lib/stripeClient";
 import CheckoutForm from "@/components/CheckoutForm";
 import AddressFields, { type Address, emptyAddress, addressComplete } from "@/components/AddressFields";
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 
 interface Product {
   id: string;
@@ -114,23 +117,27 @@ export default function NewOrderPage() {
     const effectiveBilling = billing;
     return (
       <main className="mx-auto max-w-lg space-y-4 p-6">
-        <h1 className="text-xl font-semibold">Payment</h1>
-        <Elements stripe={getStripe()} options={{ clientSecret: checkout.clientSecret }}>
-          <CheckoutForm
-            orderId={checkout.orderId}
-            billingDetails={{
-              name: customerCompany || customerName,
-              address: {
-                line1: effectiveBilling.line1,
-                line2: effectiveBilling.line2 || undefined,
-                city: effectiveBilling.city,
-                state: effectiveBilling.state,
-                postal_code: effectiveBilling.postalCode,
-                country: effectiveBilling.country,
-              },
-            }}
-          />
-        </Elements>
+        <Card className="p-6">
+          <h1 className="text-xl font-semibold">Payment</h1>
+          <div className="mt-4">
+            <Elements stripe={getStripe()} options={{ clientSecret: checkout.clientSecret }}>
+              <CheckoutForm
+                orderId={checkout.orderId}
+                billingDetails={{
+                  name: customerCompany || customerName,
+                  address: {
+                    line1: effectiveBilling.line1,
+                    line2: effectiveBilling.line2 || undefined,
+                    city: effectiveBilling.city,
+                    state: effectiveBilling.state,
+                    postal_code: effectiveBilling.postalCode,
+                    country: effectiveBilling.country,
+                  },
+                }}
+              />
+            </Elements>
+          </div>
+        </Card>
       </main>
     );
   }
@@ -139,37 +146,33 @@ export default function NewOrderPage() {
     <main className="mx-auto max-w-3xl space-y-6 p-6">
       <h1 className="text-xl font-semibold">New order</h1>
 
-      <section>
-        <input
+      <Card className="p-6">
+        <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search products by name, SKU, vendor..."
-          className="w-full rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
         />
-        <ul className="mt-2 divide-y divide-black/5 dark:divide-white/5">
+        <ul className="mt-2 divide-y divide-border">
           {results.map((product) => (
             <li key={product.id} className="flex items-center justify-between py-2 text-sm">
               <span>
-                {product.name} <span className="text-black/50 dark:text-white/50">({product.sku})</span>
+                {product.name} <span className="text-muted">({product.sku})</span>
               </span>
               <span className="flex items-center gap-3">
-                <span>${product.price}</span>
-                <button
-                  onClick={() => addToCart(product)}
-                  className="rounded bg-black px-2 py-1 text-xs font-medium text-white dark:bg-white dark:text-black"
-                >
+                <span className="font-medium">${product.price}</span>
+                <Button size="sm" onClick={() => addToCart(product)}>
                   Add
-                </button>
+                </Button>
               </span>
             </li>
           ))}
         </ul>
-      </section>
+      </Card>
 
-      <section>
+      <Card className="p-6">
         <h2 className="text-lg font-semibold">Cart</h2>
-        {cart.length === 0 && <p className="text-sm text-black/60 dark:text-white/60">No items yet.</p>}
-        <ul className="divide-y divide-black/5 dark:divide-white/5">
+        {cart.length === 0 && <p className="mt-2 text-sm text-muted">No items yet.</p>}
+        <ul className="mt-2 divide-y divide-border">
           {cart.map((line) => (
             <li key={line.product.id} className="flex items-center justify-between py-2 text-sm">
               <span>{line.product.name}</span>
@@ -179,73 +182,73 @@ export default function NewOrderPage() {
                   min={0}
                   value={line.quantity}
                   onChange={(e) => updateQuantity(line.product.id, Number(e.target.value))}
-                  className="w-16 rounded border border-black/15 bg-transparent px-2 py-1 dark:border-white/20"
+                  className="w-16 rounded-lg border border-border bg-card px-2 py-1 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
-                <span>${(Number(line.product.price) * line.quantity).toFixed(2)}</span>
+                <span className="w-20 text-right font-medium">
+                  ${(Number(line.product.price) * line.quantity).toFixed(2)}
+                </span>
               </span>
             </li>
           ))}
         </ul>
-        {cart.length > 0 && <p className="mt-2 text-right font-medium">Total: ${total.toFixed(2)}</p>}
-      </section>
+        {cart.length > 0 && (
+          <div className="mt-3 flex justify-between border-t border-border pt-3 text-base font-semibold">
+            <span>Total</span>
+            <span>${total.toFixed(2)}</span>
+          </div>
+        )}
+      </Card>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Customer</h2>
-        <input
-          value={customerName}
-          onChange={(e) => setCustomerName(e.target.value)}
-          placeholder="Customer name"
-          className="w-full rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
-        />
-        <input
-          value={customerCompany}
-          onChange={(e) => setCustomerCompany(e.target.value)}
-          placeholder="Company name (optional)"
-          className="w-full rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
-        />
-        <input
-          value={customerEmail}
-          onChange={(e) => setCustomerEmail(e.target.value)}
-          placeholder="Customer email (optional)"
-          className="w-full rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
-        />
-        <input
-          value={customerPhone}
-          onChange={(e) => setCustomerPhone(e.target.value)}
-          placeholder="Customer phone (optional)"
-          className="w-full rounded border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20"
-        />
-      </section>
+      <div className="grid gap-6 sm:grid-cols-2">
+        <Card className="space-y-3 p-6">
+          <h2 className="text-lg font-semibold">Customer</h2>
+          <Input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Customer name" />
+          <Input
+            value={customerCompany}
+            onChange={(e) => setCustomerCompany(e.target.value)}
+            placeholder="Company name (optional)"
+          />
+          <Input
+            value={customerEmail}
+            onChange={(e) => setCustomerEmail(e.target.value)}
+            placeholder="Customer email (optional)"
+          />
+          <Input
+            value={customerPhone}
+            onChange={(e) => setCustomerPhone(e.target.value)}
+            placeholder="Customer phone (optional)"
+          />
+        </Card>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Billing address</h2>
-        <AddressFields value={billing} onChange={setBilling} prefix="Billing" />
-      </section>
+        <Card className="space-y-3 p-6">
+          <h2 className="text-lg font-semibold">Billing address</h2>
+          <AddressFields value={billing} onChange={setBilling} prefix="Billing" />
+        </Card>
+      </div>
 
-      <section className="space-y-3">
+      <Card className="space-y-3 p-6">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Shipping address</h2>
-          <label className="flex items-center gap-2 text-sm">
+          <label className="flex items-center gap-2 text-sm text-muted">
             <input
               type="checkbox"
               checked={shippingSameAsBilling}
               onChange={(e) => setShippingSameAsBilling(e.target.checked)}
+              className="accent-primary"
             />
             Same as billing
           </label>
         </div>
         {!shippingSameAsBilling && <AddressFields value={shipping} onChange={setShipping} prefix="Shipping" />}
-      </section>
+      </Card>
 
-      {error && <p className="text-sm text-red-700 dark:text-red-400">{error}</p>}
+      {error && <p className="rounded-lg bg-destructive/10 px-4 py-2 text-sm text-destructive">{error}</p>}
 
-      <button
-        onClick={handleCheckout}
-        disabled={submitting}
-        className="rounded bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
-      >
-        {submitting ? "Preparing payment..." : "Continue to payment"}
-      </button>
+      <div className="flex justify-end">
+        <Button onClick={handleCheckout} disabled={submitting} className="px-6 py-3 text-base">
+          {submitting ? "Preparing payment..." : "Continue to payment"}
+        </Button>
+      </div>
     </main>
   );
 }

@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Card from "@/components/ui/Card";
+import Button, { buttonVariants } from "@/components/ui/Button";
+import StatusBadge from "@/components/ui/StatusBadge";
 
 interface CommissionRow {
   id: string;
@@ -46,61 +49,59 @@ export default function CommissionsPage() {
     <main className="mx-auto max-w-4xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Commission payouts</h1>
-        <Link
-          href="/api/admin/commissions/export"
-          className="rounded bg-black px-3 py-1.5 text-sm font-medium text-white dark:bg-white dark:text-black"
-        >
+        <Link href="/api/admin/commissions/export" className={buttonVariants({ size: "sm" })}>
           Export unpaid (CSV)
         </Link>
       </div>
 
-      <table className="w-full text-left text-sm">
-        <thead>
-          <tr className="border-b border-black/10 dark:border-white/10">
-            <th className="py-1 pr-3">Staff</th>
-            <th className="py-1 pr-3">Order</th>
-            <th className="py-1 pr-3">Rate</th>
-            <th className="py-1 pr-3">Amount</th>
-            <th className="py-1 pr-3">Payout method</th>
-            <th className="py-1 pr-3">Status</th>
-            <th className="py-1 pr-3" />
-          </tr>
-        </thead>
-        <tbody>
-          {commissions.map((c) => (
-            <tr key={c.id} className="border-b border-black/5 dark:border-white/5">
-              <td className="py-1 pr-3">
-                {c.staffName} <span className="text-black/50 dark:text-white/50">({c.staffEmail})</span>
-              </td>
-              <td className="py-1 pr-3">{c.orderCustomer}</td>
-              <td className="py-1 pr-3">{c.rate}%</td>
-              <td className="py-1 pr-3">${c.amount}</td>
-              <td className="py-1 pr-3">
-                {c.payoutMethod ?? "Not set"}
-                {c.payoutDetail ? ` - ${c.payoutDetail}` : ""}
-              </td>
-              <td className="py-1 pr-3">{c.status}</td>
-              <td className="py-1 pr-3">
-                {c.status === "UNPAID" && (
-                  <button
-                    onClick={() => markPaid(c.id)}
-                    className="rounded bg-black px-2 py-1 text-xs font-medium text-white dark:bg-white dark:text-black"
-                  >
-                    Mark paid
-                  </button>
-                )}
-              </td>
+      <Card className="overflow-hidden">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-border text-muted">
+              <th className="px-4 py-2 font-medium">Staff</th>
+              <th className="px-4 py-2 font-medium">Order</th>
+              <th className="px-4 py-2 font-medium">Rate</th>
+              <th className="px-4 py-2 font-medium">Amount</th>
+              <th className="px-4 py-2 font-medium">Payout method</th>
+              <th className="px-4 py-2 font-medium">Status</th>
+              <th className="px-4 py-2 font-medium" />
             </tr>
-          ))}
-          {commissions.length === 0 && (
-            <tr>
-              <td colSpan={7} className="py-3 text-black/60 dark:text-white/60">
-                No commissions yet.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {commissions.map((c) => (
+              <tr key={c.id} className="border-b border-border last:border-0">
+                <td className="px-4 py-2">
+                  {c.staffName} <span className="text-muted">({c.staffEmail})</span>
+                </td>
+                <td className="px-4 py-2">{c.orderCustomer}</td>
+                <td className="px-4 py-2">{c.rate}%</td>
+                <td className="px-4 py-2 font-medium">${c.amount}</td>
+                <td className="px-4 py-2">
+                  {c.payoutMethod ?? "Not set"}
+                  {c.payoutDetail ? ` - ${c.payoutDetail}` : ""}
+                </td>
+                <td className="px-4 py-2">
+                  <StatusBadge status={c.status} />
+                </td>
+                <td className="px-4 py-2">
+                  {c.status === "UNPAID" && (
+                    <Button size="sm" variant="outline" onClick={() => markPaid(c.id)}>
+                      Mark paid
+                    </Button>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {commissions.length === 0 && (
+              <tr>
+                <td colSpan={7} className="px-4 py-6 text-center text-muted">
+                  No commissions yet.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </Card>
     </main>
   );
 }

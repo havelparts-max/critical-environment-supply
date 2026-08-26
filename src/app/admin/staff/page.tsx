@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import { Select } from "@/components/ui/Input";
+import StatusBadge from "@/components/ui/StatusBadge";
 
 interface StaffUser {
   id: string;
@@ -75,89 +80,89 @@ export default function StaffPage() {
 
   return (
     <main className="mx-auto max-w-3xl space-y-8 p-6">
-      <section>
+      <div>
         <h1 className="text-xl font-semibold">Staff</h1>
 
         {newPassword && (
-          <div className="mt-3 rounded border border-green-600/30 bg-green-50 p-3 text-sm text-green-900 dark:bg-green-950 dark:text-green-300">
+          <div className="mt-3 rounded-lg bg-success/10 p-3 text-sm">
             <p>
               New password for <strong>{newPassword.email}</strong>:{" "}
-              <code className="rounded bg-black/10 px-1.5 py-0.5 dark:bg-white/10">{newPassword.password}</code>
+              <code className="rounded bg-muted-bg px-1.5 py-0.5">{newPassword.password}</code>
             </p>
-            <p className="mt-1 text-xs">Save this now - it won&apos;t be shown again. Share it with them directly.</p>
+            <p className="mt-1 text-xs text-muted">
+              Save this now - it won&apos;t be shown again. Share it with them directly.
+            </p>
             <button onClick={() => setNewPassword(null)} className="mt-2 text-xs underline">
               Dismiss
             </button>
           </div>
         )}
-      </section>
+      </div>
 
-      <section>
+      <Card className="p-6">
         <h2 className="text-lg font-semibold">Add staff member</h2>
         <form onSubmit={handleCreate} className="mt-3 grid grid-cols-2 gap-3 text-sm">
-          <input name="name" placeholder="Name" required className="rounded border border-black/15 bg-transparent px-2 py-1 dark:border-white/20" />
-          <input name="email" type="email" placeholder="Email" required className="rounded border border-black/15 bg-transparent px-2 py-1 dark:border-white/20" />
-          <select name="role" defaultValue="SALES" className="col-span-2 rounded border border-black/15 bg-transparent px-2 py-1 dark:border-white/20">
+          <Input name="name" placeholder="Name" required />
+          <Input name="email" type="email" placeholder="Email" required />
+          <Select name="role" defaultValue="SALES" className="col-span-2">
             <option value="SALES">Sales</option>
             <option value="ADMIN">Admin</option>
-          </select>
-          <button type="submit" className="col-span-2 rounded bg-black px-3 py-1.5 font-medium text-white dark:bg-white dark:text-black">
+          </Select>
+          <Button type="submit" className="col-span-2">
             Create account
-          </button>
+          </Button>
         </form>
-        {createError && <p className="mt-2 text-sm text-red-700 dark:text-red-400">{createError}</p>}
-      </section>
+        {createError && <p className="mt-2 text-sm text-destructive">{createError}</p>}
+      </Card>
 
-      <section>
-        <h2 className="text-lg font-semibold">All staff ({users.length})</h2>
-        {rowError && <p className="mt-2 text-sm text-red-700 dark:text-red-400">{rowError}</p>}
-        <div className="mt-3 overflow-x-auto">
+      <Card className="overflow-hidden">
+        <div className="border-b border-border p-6 pb-4">
+          <h2 className="text-lg font-semibold">All staff ({users.length})</h2>
+          {rowError && <p className="mt-2 text-sm text-destructive">{rowError}</p>}
+        </div>
+        <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-black/10 dark:border-white/10">
-                <th className="py-1 pr-3">Name</th>
-                <th className="py-1 pr-3">Email</th>
-                <th className="py-1 pr-3">Role</th>
-                <th className="py-1 pr-3">Status</th>
-                <th className="py-1 pr-3" />
+              <tr className="border-b border-border text-muted">
+                <th className="px-4 py-2 font-medium">Name</th>
+                <th className="px-4 py-2 font-medium">Email</th>
+                <th className="px-4 py-2 font-medium">Role</th>
+                <th className="px-4 py-2 font-medium">Status</th>
+                <th className="px-4 py-2 font-medium" />
               </tr>
             </thead>
             <tbody>
               {users.map((u) => (
-                <tr key={u.id} className="border-b border-black/5 dark:border-white/5">
-                  <td className="py-1 pr-3">{u.name}</td>
-                  <td className="py-1 pr-3">{u.email}</td>
-                  <td className="py-1 pr-3">
-                    <select
+                <tr key={u.id} className="border-b border-border last:border-0">
+                  <td className="px-4 py-2">{u.name}</td>
+                  <td className="px-4 py-2 text-muted">{u.email}</td>
+                  <td className="px-4 py-2">
+                    <Select
                       value={u.role}
                       onChange={(e) => updateUser(u.id, { role: e.target.value as "ADMIN" | "SALES" })}
-                      className="rounded border border-black/15 bg-transparent px-1 py-0.5 dark:border-white/20"
+                      className="w-auto py-1"
                     >
                       <option value="SALES">Sales</option>
                       <option value="ADMIN">Admin</option>
-                    </select>
+                    </Select>
                   </td>
-                  <td className="py-1 pr-3">{u.active ? "Active" : "Deactivated"}</td>
-                  <td className="py-1 pr-3 whitespace-nowrap">
-                    <button
-                      onClick={() => updateUser(u.id, { active: !u.active })}
-                      className="mr-2 rounded bg-black px-2 py-1 text-xs font-medium text-white dark:bg-white dark:text-black"
-                    >
+                  <td className="px-4 py-2">
+                    <StatusBadge status={u.active ? "ACTIVE" : "DEACTIVATED"} />
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2">
+                    <Button variant="outline" size="sm" onClick={() => updateUser(u.id, { active: !u.active })} className="mr-2">
                       {u.active ? "Deactivate" : "Reactivate"}
-                    </button>
-                    <button
-                      onClick={() => resetPassword(u.id, u.email)}
-                      className="rounded bg-black px-2 py-1 text-xs font-medium text-white dark:bg-white dark:text-black"
-                    >
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => resetPassword(u.id, u.email)}>
                       Reset password
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </section>
+      </Card>
     </main>
   );
 }

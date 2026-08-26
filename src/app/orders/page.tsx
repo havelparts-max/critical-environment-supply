@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import Card from "@/components/ui/Card";
+import { buttonVariants } from "@/components/ui/Button";
+import StatusBadge from "@/components/ui/StatusBadge";
 
 export default async function OrdersPage() {
   const session = await auth();
@@ -15,43 +18,44 @@ export default async function OrdersPage() {
     <main className="mx-auto max-w-3xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Your orders</h1>
-        <Link
-          href="/orders/new"
-          className="rounded bg-black px-3 py-1.5 text-sm font-medium text-white dark:bg-white dark:text-black"
-        >
+        <Link href="/orders/new" className={buttonVariants()}>
           New order
         </Link>
       </div>
 
-      <table className="w-full text-left text-sm">
-        <thead>
-          <tr className="border-b border-black/10 dark:border-white/10">
-            <th className="py-1 pr-3">Customer</th>
-            <th className="py-1 pr-3">Company</th>
-            <th className="py-1 pr-3">Total</th>
-            <th className="py-1 pr-3">Status</th>
-            <th className="py-1 pr-3">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((order) => (
-            <tr key={order.id} className="border-b border-black/5 dark:border-white/5">
-              <td className="py-1 pr-3">{order.customerName}</td>
-              <td className="py-1 pr-3">{order.customerCompany ?? "-"}</td>
-              <td className="py-1 pr-3">${order.total.toString()}</td>
-              <td className="py-1 pr-3">{order.status}</td>
-              <td className="py-1 pr-3">{order.createdAt.toLocaleString()}</td>
+      <Card className="overflow-hidden">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-border text-muted">
+              <th className="px-4 py-2 font-medium">Customer</th>
+              <th className="px-4 py-2 font-medium">Company</th>
+              <th className="px-4 py-2 font-medium">Total</th>
+              <th className="px-4 py-2 font-medium">Status</th>
+              <th className="px-4 py-2 font-medium">Date</th>
             </tr>
-          ))}
-          {orders.length === 0 && (
-            <tr>
-              <td colSpan={5} className="py-3 text-black/60 dark:text-white/60">
-                No orders yet.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {orders.map((order) => (
+              <tr key={order.id} className="border-b border-border last:border-0">
+                <td className="px-4 py-2">{order.customerName}</td>
+                <td className="px-4 py-2">{order.customerCompany ?? "-"}</td>
+                <td className="px-4 py-2 font-medium">${order.total.toString()}</td>
+                <td className="px-4 py-2">
+                  <StatusBadge status={order.status} />
+                </td>
+                <td className="px-4 py-2 text-muted">{order.createdAt.toLocaleString()}</td>
+              </tr>
+            ))}
+            {orders.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-4 py-6 text-center text-muted">
+                  No orders yet.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </Card>
     </main>
   );
 }
