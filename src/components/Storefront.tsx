@@ -131,6 +131,15 @@ export default function Storefront() {
     }
   }
 
+  const ContactBanner = (
+    <div className="bg-muted-bg px-6 py-2 text-center text-xs text-muted">
+      For questions about products, or to sign up as a sales rep, please email:{" "}
+      <a href="mailto:sales@criticalenvironmentsupply.com" className="font-medium text-primary hover:underline">
+        sales@criticalenvironmentsupply.com
+      </a>
+    </div>
+  );
+
   const Header = (
     <header className="sticky top-0 z-10 border-b border-border bg-card/80 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
@@ -176,6 +185,7 @@ export default function Storefront() {
 
   return (
     <div className="min-h-full">
+      {ContactBanner}
       {Header}
 
       <section className="border-b border-border bg-gradient-to-b from-primary/5 to-transparent">
