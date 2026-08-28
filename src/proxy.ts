@@ -12,7 +12,8 @@ export default auth((req) => {
   const isPublicRoute =
     nextUrl.pathname === "/" ||
     nextUrl.pathname.startsWith("/api/products") ||
-    nextUrl.pathname.startsWith("/api/storefront");
+    nextUrl.pathname.startsWith("/api/storefront") ||
+    nextUrl.pathname.startsWith("/return-policy");
 
   if (isSignInRoute) {
     if (isLoggedIn) {

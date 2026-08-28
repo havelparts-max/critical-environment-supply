@@ -330,6 +330,12 @@ export default function Storefront() {
           </Button>
         </div>
       </main>
+
+      <footer className="border-t border-border py-6 text-center text-xs text-muted">
+        <Link href="/return-policy" className="hover:text-foreground hover:underline">
+          Return Policy
+        </Link>
+      </footer>
     </div>
   );
 }
