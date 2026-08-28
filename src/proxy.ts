@@ -13,7 +13,9 @@ export default auth((req) => {
     nextUrl.pathname === "/" ||
     nextUrl.pathname.startsWith("/api/products") ||
     nextUrl.pathname.startsWith("/api/storefront") ||
-    nextUrl.pathname.startsWith("/return-policy");
+    nextUrl.pathname.startsWith("/return-policy") ||
+    nextUrl.pathname.startsWith("/product/") ||
+    nextUrl.pathname.startsWith("/api/merchant-feed");
 
   if (isSignInRoute) {
     if (isLoggedIn) {

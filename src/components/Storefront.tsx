@@ -38,8 +38,8 @@ function ProductIcon() {
   );
 }
 
-export default function Storefront() {
-  const [query, setQuery] = useState("");
+export default function Storefront({ initialQuery = "" }: { initialQuery?: string }) {
+  const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartLine[]>([]);
   const [customerName, setCustomerName] = useState("");
