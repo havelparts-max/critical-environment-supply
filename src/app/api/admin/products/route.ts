@@ -4,11 +4,22 @@ import { prisma } from "@/lib/prisma";
 import { computeSellPrice } from "@/lib/pricing";
 import { optionalTrimmedString, optionalNumber } from "@/lib/zodHelpers";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const excludeCategory = searchParams.get("excludeCategory");
+  const withCount = searchParams.get("withCount") === "1";
+
+  const where = excludeCategory
+    ? { OR: [{ category: null }, { category: { not: excludeCategory } }] }
+    : {};
+
   // Capped so a large catalog (e.g. a full configurator import) doesn't force
   // the admin page to fetch and render every row at once.
-  const products = await prisma.product.findMany({ orderBy: { createdAt: "desc" }, take: 500 });
-  return NextResponse.json({ products });
+  const [products, total] = await Promise.all([
+    prisma.product.findMany({ where, orderBy: { createdAt: "desc" }, take: 500 }),
+    withCount ? prisma.product.count({ where }) : Promise.resolve(null),
+  ]);
+  return NextResponse.json({ products, total });
 }
 
 const createSchema = z.object({
