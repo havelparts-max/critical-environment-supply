@@ -5,7 +5,9 @@ import { computeSellPrice } from "@/lib/pricing";
 import { optionalTrimmedString, optionalNumber } from "@/lib/zodHelpers";
 
 export async function GET() {
-  const products = await prisma.product.findMany({ orderBy: { createdAt: "desc" } });
+  // Capped so a large catalog (e.g. a full configurator import) doesn't force
+  // the admin page to fetch and render every row at once.
+  const products = await prisma.product.findMany({ orderBy: { createdAt: "desc" }, take: 500 });
   return NextResponse.json({ products });
 }
 

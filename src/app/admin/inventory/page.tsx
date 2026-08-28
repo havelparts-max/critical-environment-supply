@@ -1,9 +1,20 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import Papa from "papaparse";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+
+// Matches the server's MAX_BATCH_ROWS in api/admin/products/import/route.ts, so a
+// normal client-driven import maps to exactly one bulk upsert per request.
+const IMPORT_BATCH_SIZE = 5000;
+
+interface ImportBatchResult {
+  imported?: number;
+  errors?: { row: number; message: string }[];
+  error?: string;
+}
 
 interface Product {
   id: string;
@@ -21,6 +32,7 @@ export default function InventoryPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [importResult, setImportResult] = useState<{ imported: number; errors: { row: number; message: string }[] } | null>(null);
   const [importing, setImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState<string | null>(null);
   const [addError, setAddError] = useState<string | null>(null);
 
   async function refresh() {
@@ -35,24 +47,69 @@ export default function InventoryPage() {
       .then((data) => setProducts(data.products ?? []));
   }, []);
 
+  async function postBatch(rows: Record<string, unknown>[]): Promise<ImportBatchResult> {
+    const res = await fetch("/api/admin/products/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rows }),
+    });
+    return res.json();
+  }
+
   async function handleImport(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const fileInput = form.elements.namedItem("file") as HTMLInputElement;
-    if (!fileInput.files?.[0]) return;
+    const file = fileInput.files?.[0];
+    if (!file) return;
 
     setImporting(true);
     setImportResult(null);
-    const formData = new FormData();
-    formData.set("file", fileInput.files[0]);
+    setImportProgress(null);
+
     try {
-      const res = await fetch("/api/admin/products/import", { method: "POST", body: formData });
-      const data = await res.json();
-      setImportResult(data);
+      // CSV is parsed here and uploaded in batches — large imports (thousands of
+      // rows, e.g. a full configurator export) would otherwise exceed the
+      // hosting platform's request body size limit in one shot, or time out
+      // doing one database round trip per row.
+      if (file.name.toLowerCase().endsWith(".csv")) {
+        const text = await file.text();
+        const { data } = Papa.parse<Record<string, unknown>>(text, { header: true, skipEmptyLines: true });
+
+        let imported = 0;
+        const errors: { row: number; message: string }[] = [];
+        const totalBatches = Math.max(1, Math.ceil(data.length / IMPORT_BATCH_SIZE));
+
+        for (let i = 0; i < data.length; i += IMPORT_BATCH_SIZE) {
+          const batchNumber = i / IMPORT_BATCH_SIZE + 1;
+          setImportProgress(`Importing rows ${i + 1}-${Math.min(i + IMPORT_BATCH_SIZE, data.length)} of ${data.length} (batch ${batchNumber}/${totalBatches})...`);
+          const batch = data.slice(i, i + IMPORT_BATCH_SIZE);
+          const result = await postBatch(batch);
+          if (result.error) {
+            errors.push({ row: i + 2, message: result.error });
+            continue;
+          }
+          imported += result.imported ?? 0;
+          for (const e of result.errors ?? []) {
+            errors.push({ row: e.row + i, message: e.message });
+          }
+        }
+
+        setImportResult({ imported, errors });
+      } else {
+        // .xlsx: uploaded whole. Fine for smaller workbooks; for very large
+        // catalogs, export as .csv instead so it can be batched.
+        const formData = new FormData();
+        formData.set("file", file);
+        const res = await fetch("/api/admin/products/import", { method: "POST", body: formData });
+        const data = await res.json();
+        setImportResult(data);
+      }
       await refresh();
       form.reset();
     } finally {
       setImporting(false);
+      setImportProgress(null);
     }
   }
 
@@ -93,6 +150,7 @@ export default function InventoryPage() {
             {importing ? "Importing..." : "Import"}
           </Button>
         </form>
+        {importProgress && <p className="mt-3 text-sm text-muted">{importProgress}</p>}
         {importResult && (
           <div className="mt-3 rounded-lg border border-border bg-muted-bg p-3 text-sm">
             <p>Imported {importResult.imported} products.</p>
@@ -128,7 +186,7 @@ export default function InventoryPage() {
 
       <Card className="overflow-hidden">
         <div className="border-b border-border p-6 pb-4">
-          <h2 className="text-lg font-semibold">Catalog ({products.length})</h2>
+          <h2 className="text-lg font-semibold">Catalog (showing {products.length} most recent)</h2>
         </div>
         <div className="max-h-[32rem] overflow-auto">
           <table className="w-full text-left text-sm">

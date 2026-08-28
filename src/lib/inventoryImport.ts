@@ -43,7 +43,7 @@ function normalizeRow(raw: Record<string, unknown>): Record<string, unknown> {
   return normalized;
 }
 
-function toRows(rawRows: Record<string, unknown>[]): ImportResult {
+export function toRows(rawRows: Record<string, unknown>[]): ImportResult {
   const rows: ImportedProductRow[] = [];
   const errors: { row: number; message: string }[] = [];
 
