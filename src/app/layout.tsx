@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Critical Environment Supply",
   description: "HVAC parts and controls — shop online or sign in as staff.",
+  verification: {
+    google: "82eo3ubr0UXdpMztRzOYtyhzjHqrW6bIonSit3qIBIw",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
