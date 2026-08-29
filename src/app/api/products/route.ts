@@ -14,6 +14,7 @@ export async function GET(request: Request) {
   if (!q) {
     const products = await prisma.product.findMany({
       where: { active: true },
+      select: { id: true, sku: true, name: true, description: true, vendor: true, price: true, imageUrl: true },
       orderBy: { name: "asc" },
       take: 100,
     });
@@ -33,9 +34,10 @@ export async function GET(request: Request) {
       description: string | null;
       vendor: string | null;
       price: string;
+      imageUrl: string | null;
     }>
   >`
-    SELECT id, sku, name, description, vendor, price
+    SELECT id, sku, name, description, vendor, price, "imageUrl"
     FROM "Product"
     WHERE active = true
       AND (

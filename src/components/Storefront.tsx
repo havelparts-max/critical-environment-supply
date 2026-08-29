@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Elements } from "@stripe/react-stripe-js";
 import { getStripe } from "@/lib/stripeClient";
 import CheckoutForm from "@/components/CheckoutForm";
@@ -17,6 +18,7 @@ interface Product {
   description: string | null;
   vendor: string | null;
   price: string;
+  imageUrl: string | null;
 }
 
 interface CartLine {
@@ -210,10 +212,27 @@ export default function Storefront({ initialQuery = "" }: { initialQuery?: strin
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {results.map((product) => (
               <Card key={product.id} className="flex flex-col p-4">
-                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <ProductIcon />
-                </div>
-                <h3 className="text-sm font-medium leading-snug">{product.name}</h3>
+                <Link href={`/product/${encodeURIComponent(product.sku)}`} className="mb-3 block">
+                  {product.imageUrl ? (
+                    <div className="flex h-24 items-center justify-center overflow-hidden rounded-lg bg-primary/5">
+                      <Image
+                        src={product.imageUrl}
+                        alt={product.name}
+                        width={96}
+                        height={96}
+                        unoptimized
+                        className="h-full w-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                      <ProductIcon />
+                    </div>
+                  )}
+                </Link>
+                <Link href={`/product/${encodeURIComponent(product.sku)}`} className="hover:underline">
+                  <h3 className="text-sm font-medium leading-snug">{product.name}</h3>
+                </Link>
                 <p className="mt-1 text-xs text-muted">
                   {product.vendor ? `${product.vendor} · ` : ""}
                   {product.sku}
