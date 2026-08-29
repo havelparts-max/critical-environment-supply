@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Elements } from "@stripe/react-stripe-js";
@@ -54,15 +54,29 @@ export default function Storefront({ initialQuery = "" }: { initialQuery?: strin
   const [checkout, setCheckout] = useState<{ orderId: string; clientSecret: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const autoAddedRef = useRef(false);
 
   useEffect(() => {
     const controller = new AbortController();
     fetch(`/api/products?q=${encodeURIComponent(query)}`, { signal: controller.signal })
       .then((res) => res.json())
-      .then((data) => setResults(data.products ?? []))
+      .then((data) => {
+        const products: Product[] = data.products ?? [];
+        setResults(products);
+        // Arriving from a product page's "Order this item" link (which passes
+        // ?q=<sku>) should put that exact item in the cart, not just filter the
+        // search results down to it.
+        if (!autoAddedRef.current && initialQuery && query === initialQuery) {
+          const exact = products.find((p) => p.sku.toLowerCase() === initialQuery.toLowerCase());
+          if (exact) {
+            autoAddedRef.current = true;
+            addToCart(exact);
+          }
+        }
+      })
       .catch(() => {});
     return () => controller.abort();
-  }, [query]);
+  }, [query, initialQuery]);
 
   function addToCart(product: Product) {
     setCart((prev) => {
