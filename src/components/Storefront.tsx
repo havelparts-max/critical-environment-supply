@@ -369,6 +369,13 @@ export default function Storefront({ initialQuery = "" }: { initialQuery?: strin
         <Link href="/return-policy" className="hover:text-foreground hover:underline">
           Return Policy
         </Link>
+        <span className="mx-2">·</span>
+        <a
+          href="mailto:sales@criticalenvironmentsupply.com"
+          className="hover:text-foreground hover:underline"
+        >
+          Contact Us
+        </a>
       </footer>
     </div>
   );
