@@ -366,6 +366,10 @@ export default function Storefront({ initialQuery = "" }: { initialQuery?: strin
       </main>
 
       <footer className="border-t border-border py-6 text-center text-xs text-muted">
+        <Link href="/about" className="hover:text-foreground hover:underline">
+          About Us
+        </Link>
+        <span className="mx-2">·</span>
         <Link href="/return-policy" className="hover:text-foreground hover:underline">
           Return Policy
         </Link>
