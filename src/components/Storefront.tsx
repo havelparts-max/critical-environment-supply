@@ -179,6 +179,7 @@ export default function Storefront({ initialQuery = "" }: { initialQuery?: strin
               <Elements stripe={getStripe()} options={{ clientSecret: checkout.clientSecret }}>
                 <CheckoutForm
                   orderId={checkout.orderId}
+                  successRedirectPath={`/thank-you?order=${encodeURIComponent(checkout.orderId)}`}
                   billingDetails={{
                     name: customerCompany || customerName,
                     address: {

@@ -15,6 +15,7 @@ export default auth((req) => {
     nextUrl.pathname.startsWith("/api/storefront") ||
     nextUrl.pathname.startsWith("/return-policy") ||
     nextUrl.pathname.startsWith("/product/") ||
+    nextUrl.pathname.startsWith("/thank-you") ||
     nextUrl.pathname.startsWith("/api/merchant-feed");
 
   if (isSignInRoute) {
