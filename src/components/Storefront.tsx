@@ -376,6 +376,10 @@ export default function Storefront({ initialQuery = "" }: { initialQuery?: strin
         >
           Contact Us
         </a>
+        <span className="mx-2">·</span>
+        <a href="tel:+15089058581" className="hover:text-foreground hover:underline">
+          (508) 905-8581
+        </a>
       </footer>
     </div>
   );
