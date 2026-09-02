@@ -20,6 +20,8 @@ interface Order {
   customerPhone: string | null;
   staffName: string;
   status: string;
+  paymentMethod: string;
+  poNumber: string | null;
   total: string;
   createdAt: string;
   shippingLine1: string | null;
@@ -55,6 +57,7 @@ export default function AdminOrdersPage() {
                 <th className="px-4 py-2 font-medium">Source</th>
                 <th className="px-4 py-2 font-medium">Total</th>
                 <th className="px-4 py-2 font-medium">Status</th>
+                <th className="px-4 py-2 font-medium">Payment</th>
                 <th className="px-4 py-2 font-medium">Date</th>
                 <th className="px-4 py-2 font-medium" />
               </tr>
@@ -70,6 +73,9 @@ export default function AdminOrdersPage() {
                     <td className="px-4 py-2">
                       <StatusBadge status={order.status} />
                     </td>
+                    <td className="px-4 py-2">
+                      {order.paymentMethod === "PURCHASE_ORDER" ? `PO #${order.poNumber}` : "Card"}
+                    </td>
                     <td className="px-4 py-2 text-muted">{new Date(order.createdAt).toLocaleString()}</td>
                     <td className="px-4 py-2">
                       <Button
@@ -83,7 +89,7 @@ export default function AdminOrdersPage() {
                   </tr>
                   {expanded === order.id && (
                     <tr className="border-b border-border bg-muted-bg last:border-0">
-                      <td colSpan={7} className="px-4 py-4">
+                      <td colSpan={8} className="px-4 py-4">
                         <div className="grid grid-cols-2 gap-6 text-xs">
                           <div>
                             <p className="font-medium text-foreground">Contact</p>
@@ -115,7 +121,7 @@ export default function AdminOrdersPage() {
               ))}
               {orders.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-6 text-center text-muted">
+                  <td colSpan={8} className="px-4 py-6 text-center text-muted">
                     No orders yet.
                   </td>
                 </tr>

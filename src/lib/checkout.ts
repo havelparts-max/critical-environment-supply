@@ -3,7 +3,12 @@ import { stripe } from "@/lib/stripe";
 import { Prisma } from "@/generated/prisma/client";
 import type { CreateOrderInput } from "@/lib/orderSchema";
 
-export async function createOrderAndPaymentIntent(data: CreateOrderInput, staffId: string | null) {
+type CheckoutInput = CreateOrderInput & {
+  paymentMethod?: "CARD" | "PURCHASE_ORDER";
+  poNumber?: string;
+};
+
+export async function createOrderAndPaymentIntent(data: CheckoutInput, staffId: string | null) {
   const productIds = data.items.map((i) => i.productId);
   const products = await prisma.product.findMany({
     where: { id: { in: productIds }, active: true },
@@ -28,10 +33,17 @@ export async function createOrderAndPaymentIntent(data: CreateOrderInput, staffI
   });
 
   const total = subtotal;
-  const totalCents = total.mul(100).round().toNumber();
 
   const billing = data.billingAddress;
   const shipping = data.shippingSameAsBilling ? billing : data.shippingAddress!;
+
+  // Purchase Order is a staff-only payment method (see createStaffOrderSchema
+  // - the public storefront schema has no paymentMethod field at all, so a
+  // guest request can never reach this branch). No Stripe payment is
+  // collected: the order is placed directly on PO terms, and since it's a
+  // real, staff-attributed sale, commission is earned immediately rather
+  // than waiting on a payment webhook that will never fire for it.
+  const isPurchaseOrder = data.paymentMethod === "PURCHASE_ORDER";
 
   const order = await prisma.order.create({
     data: {
@@ -53,11 +65,28 @@ export async function createOrderAndPaymentIntent(data: CreateOrderInput, staffI
       shippingState: shipping.state,
       shippingPostalCode: shipping.postalCode,
       shippingCountry: shipping.country,
+      paymentMethod: isPurchaseOrder ? "PURCHASE_ORDER" : "CARD",
+      poNumber: isPurchaseOrder ? data.poNumber : undefined,
+      status: isPurchaseOrder ? "INVOICED" : "PENDING",
       subtotal,
       total,
       items: { create: itemsData },
     },
   });
+
+  if (isPurchaseOrder) {
+    if (staffId) {
+      const settings = await prisma.appSettings.findUnique({ where: { id: 1 } });
+      const rate = settings?.commissionRatePercent ?? 10;
+      const amount = total.mul(rate).div(100);
+      await prisma.commission.create({
+        data: { orderId: order.id, staffId, rate, amount },
+      });
+    }
+    return { orderId: order.id, clientSecret: null } as const;
+  }
+
+  const totalCents = total.mul(100).round().toNumber();
 
   const paymentIntent = await stripe.paymentIntents.create({
     amount: totalCents,

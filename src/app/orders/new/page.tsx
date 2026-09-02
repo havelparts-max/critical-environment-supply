@@ -32,7 +32,11 @@ export default function NewOrderPage() {
   const [billing, setBilling] = useState<Address>(emptyAddress);
   const [shippingSameAsBilling, setShippingSameAsBilling] = useState(true);
   const [shipping, setShipping] = useState<Address>(emptyAddress);
-  const [checkout, setCheckout] = useState<{ orderId: string; clientSecret: string } | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"CARD" | "PURCHASE_ORDER">("CARD");
+  const [poNumber, setPoNumber] = useState("");
+  const [checkout, setCheckout] = useState<{ orderId: string; clientSecret: string | null } | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -85,6 +89,10 @@ export default function NewOrderPage() {
       setError("Shipping address is incomplete.");
       return;
     }
+    if (paymentMethod === "PURCHASE_ORDER" && !poNumber.trim()) {
+      setError("PO number is required for Purchase Order payment.");
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -100,6 +108,8 @@ export default function NewOrderPage() {
           shippingSameAsBilling,
           shippingAddress: shippingSameAsBilling ? undefined : shipping,
           items: cart.map((line) => ({ productId: line.product.id, quantity: line.quantity })),
+          paymentMethod,
+          poNumber: paymentMethod === "PURCHASE_ORDER" ? poNumber : undefined,
         }),
       });
       const data = await res.json();
@@ -113,7 +123,25 @@ export default function NewOrderPage() {
     }
   }
 
-  if (checkout) {
+  if (checkout && !checkout.clientSecret) {
+    return (
+      <main className="mx-auto max-w-lg space-y-4 p-6">
+        <Card className="space-y-2 p-6">
+          <h1 className="text-xl font-semibold">Order placed</h1>
+          <p className="text-sm text-muted">
+            Order {checkout.orderId} was placed on Purchase Order{poNumber ? ` #${poNumber}` : ""}. No
+            payment was collected — it will show as <span className="font-medium">Invoiced</span> in
+            Your Orders until it's paid per the PO terms.
+          </p>
+          <div className="pt-2">
+            <Button onClick={() => (window.location.href = "/orders")}>Back to your orders</Button>
+          </div>
+        </Card>
+      </main>
+    );
+  }
+
+  if (checkout && checkout.clientSecret) {
     const effectiveBilling = billing;
     return (
       <main className="mx-auto max-w-lg space-y-4 p-6">
@@ -242,11 +270,50 @@ export default function NewOrderPage() {
         {!shippingSameAsBilling && <AddressFields value={shipping} onChange={setShipping} prefix="Shipping" />}
       </Card>
 
+      <Card className="space-y-3 p-6">
+        <h2 className="text-lg font-semibold">Payment method</h2>
+        <div className="flex gap-4 text-sm">
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="paymentMethod"
+              value="CARD"
+              checked={paymentMethod === "CARD"}
+              onChange={() => setPaymentMethod("CARD")}
+              className="accent-primary"
+            />
+            Credit card
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="paymentMethod"
+              value="PURCHASE_ORDER"
+              checked={paymentMethod === "PURCHASE_ORDER"}
+              onChange={() => setPaymentMethod("PURCHASE_ORDER")}
+              className="accent-primary"
+            />
+            Purchase Order
+          </label>
+        </div>
+        {paymentMethod === "PURCHASE_ORDER" && (
+          <Input
+            value={poNumber}
+            onChange={(e) => setPoNumber(e.target.value)}
+            placeholder="PO number"
+          />
+        )}
+      </Card>
+
       {error && <p className="rounded-lg bg-destructive/10 px-4 py-2 text-sm text-destructive">{error}</p>}
 
       <div className="flex justify-end">
         <Button onClick={handleCheckout} disabled={submitting} className="px-6 py-3 text-base">
-          {submitting ? "Preparing payment..." : "Continue to payment"}
+          {submitting
+            ? "Placing order..."
+            : paymentMethod === "PURCHASE_ORDER"
+              ? "Place order on PO"
+              : "Continue to payment"}
         </Button>
       </div>
     </main>

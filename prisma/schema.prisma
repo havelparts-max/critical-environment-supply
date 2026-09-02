@@ -23,6 +23,13 @@ enum OrderStatus {
   PAID
   FAILED
   REFUNDED
+  /// Placed on Purchase Order terms - no card payment was collected through Stripe.
+  INVOICED
+}
+
+enum PaymentMethod {
+  CARD
+  PURCHASE_ORDER
 }
 
 enum CommissionStatus {
@@ -99,8 +106,12 @@ model Order {
   shippingPostalCode    String?
   shippingCountry       String?
 
-  status                OrderStatus @default(PENDING)
-  stripePaymentIntentId String?     @unique
+  status                OrderStatus   @default(PENDING)
+  paymentMethod         PaymentMethod @default(CARD)
+  /// Only set when paymentMethod = PURCHASE_ORDER. Staff-entered orders only -
+  /// never settable from the public storefront checkout (see orderSchema.ts).
+  poNumber              String?
+  stripePaymentIntentId String?       @unique
   subtotal              Decimal     @db.Decimal(10, 2)
   total                 Decimal     @db.Decimal(10, 2)
   createdAt             DateTime    @default(now())

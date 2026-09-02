@@ -15,6 +15,8 @@ export async function GET() {
     customerPhone: order.customerPhone,
     staffName: order.staff?.name ?? "Online (self-checkout)",
     status: order.status,
+    paymentMethod: order.paymentMethod,
+    poNumber: order.poNumber,
     total: order.total,
     createdAt: order.createdAt,
     shippingLine1: order.shippingLine1,

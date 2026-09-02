@@ -31,6 +31,7 @@ export default async function OrdersPage() {
               <th className="px-4 py-2 font-medium">Company</th>
               <th className="px-4 py-2 font-medium">Total</th>
               <th className="px-4 py-2 font-medium">Status</th>
+              <th className="px-4 py-2 font-medium">Payment</th>
               <th className="px-4 py-2 font-medium">Date</th>
             </tr>
           </thead>
@@ -43,12 +44,15 @@ export default async function OrdersPage() {
                 <td className="px-4 py-2">
                   <StatusBadge status={order.status} />
                 </td>
+                <td className="px-4 py-2">
+                  {order.paymentMethod === "PURCHASE_ORDER" ? `PO #${order.poNumber}` : "Card"}
+                </td>
                 <td className="px-4 py-2 text-muted">{order.createdAt.toLocaleString()}</td>
               </tr>
             ))}
             {orders.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-muted">
+                <td colSpan={6} className="px-4 py-6 text-center text-muted">
                   No orders yet.
                 </td>
               </tr>

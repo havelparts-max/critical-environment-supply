@@ -1,5 +1,6 @@
 const styles: Record<string, string> = {
   PAID: "bg-success/10 text-success",
+  INVOICED: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
   PENDING: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
   UNPAID: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
   FAILED: "bg-destructive/10 text-destructive",
