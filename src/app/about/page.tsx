@@ -38,7 +38,7 @@ export default function AboutPage() {
       </div>
 
       <div className="space-y-3">
-        <h1 className="text-3xl font-semibold tracking-tight">About Critical Environment Supply</h1>
+        <h1 className="font-heading text-3xl font-bold tracking-tight">About Critical Environment Supply</h1>
         <p className="text-base leading-relaxed text-muted">
           Critical Environment Supply is an authorized distributor of HVAC and building automation
           controls, serving contractors, facility teams, and engineers who need the right part on
@@ -56,14 +56,14 @@ export default function AboutPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         {pillars.map((pillar) => (
           <Card key={pillar.title} className="space-y-2 p-6">
-            <h2 className="text-lg font-semibold">{pillar.title}</h2>
+            <h2 className="font-heading text-lg font-bold">{pillar.title}</h2>
             <p className="text-sm leading-relaxed text-muted">{pillar.body}</p>
           </Card>
         ))}
       </div>
 
       <Card className="space-y-3 p-6 text-center">
-        <h2 className="text-lg font-semibold">Get in touch</h2>
+        <h2 className="font-heading text-lg font-bold">Get in touch</h2>
         <p className="text-sm text-muted">
           Have a question about a part, an order, or becoming a customer? We're happy to help.
         </p>

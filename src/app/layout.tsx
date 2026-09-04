@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Lato, Cabin } from "next/font/google";
 import Script from "next/script";
 import NavBar from "@/components/NavBar";
 import "./globals.css";
@@ -9,8 +9,16 @@ import "./globals.css";
 // Google tag in your website code" setup instructions.
 const GOOGLE_TAG_ID = "G-PJLVGXQ48Y";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Lato (body) + Cabin (headings) match the type on havelparts.com, the
+// user's sister site, so the two storefronts read as one brand family.
+const lato = Lato({
+  variable: "--font-lato",
+  subsets: ["latin"],
+  weight: ["400", "700", "900"],
+});
+
+const cabin = Cabin({
+  variable: "--font-cabin",
   subsets: ["latin"],
 });
 
@@ -31,7 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${lato.variable} ${cabin.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <Script

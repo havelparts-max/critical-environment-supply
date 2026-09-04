@@ -159,7 +159,9 @@ export default function Storefront({ initialQuery = "" }: { initialQuery?: strin
   const Header = (
     <header className="sticky top-0 z-10 border-b border-border bg-card/80 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <span className="text-sm font-semibold tracking-tight">Critical Environment Supply</span>
+        <span className="font-heading text-lg font-bold tracking-tight text-primary">
+          Critical Environment Supply
+        </span>
         <Link href="/sign-in" className="text-sm text-muted transition-colors hover:text-foreground">
           Staff sign in
         </Link>
@@ -173,7 +175,7 @@ export default function Storefront({ initialQuery = "" }: { initialQuery?: strin
         {Header}
         <main className="mx-auto max-w-lg space-y-4 p-6">
           <Card className="p-6">
-            <h1 className="text-xl font-semibold">Payment</h1>
+            <h1 className="font-heading text-xl font-bold">Payment</h1>
             <p className="mt-1 text-sm text-muted">Order total: ${total.toFixed(2)}</p>
             <div className="mt-4">
               <Elements stripe={getStripe()} options={{ clientSecret: checkout.clientSecret }}>
@@ -207,7 +209,9 @@ export default function Storefront({ initialQuery = "" }: { initialQuery?: strin
 
       <section className="border-b border-border bg-gradient-to-b from-primary/5 to-transparent">
         <div className="mx-auto max-w-5xl px-6 py-14 text-center">
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">HVAC parts & controls, in stock</h1>
+          <h1 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+            HVAC parts &amp; controls, in stock
+          </h1>
           <p className="mx-auto mt-3 max-w-xl text-muted">
             Browse our full catalog and check out securely — no account required.
           </p>
@@ -269,7 +273,7 @@ export default function Storefront({ initialQuery = "" }: { initialQuery?: strin
         <section id="cart">
           <Card className="p-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Cart</h2>
+              <h2 className="font-heading text-lg font-bold">Cart</h2>
               {itemCount > 0 && (
                 <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
                   {itemCount} item{itemCount === 1 ? "" : "s"}
@@ -310,7 +314,7 @@ export default function Storefront({ initialQuery = "" }: { initialQuery?: strin
 
         <section className="grid gap-6 sm:grid-cols-2">
           <Card className="space-y-3 p-6">
-            <h2 className="text-lg font-semibold">Your info</h2>
+            <h2 className="font-heading text-lg font-bold">Your info</h2>
             <Input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Your name" />
             <Input
               value={customerCompany}
@@ -331,7 +335,7 @@ export default function Storefront({ initialQuery = "" }: { initialQuery?: strin
           </Card>
 
           <Card className="space-y-3 p-6">
-            <h2 className="text-lg font-semibold">Billing address</h2>
+            <h2 className="font-heading text-lg font-bold">Billing address</h2>
             <AddressFields value={billing} onChange={setBilling} prefix="Billing" />
           </Card>
         </section>
@@ -339,7 +343,7 @@ export default function Storefront({ initialQuery = "" }: { initialQuery?: strin
         <section>
           <Card className="space-y-3 p-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Shipping address</h2>
+              <h2 className="font-heading text-lg font-bold">Shipping address</h2>
               <label className="flex items-center gap-2 text-sm text-muted">
                 <input
                   type="checkbox"

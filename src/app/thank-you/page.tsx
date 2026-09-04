@@ -20,7 +20,7 @@ export default async function ThankYouPage({ searchParams }: PageProps<"/thank-y
   return (
     <main className="mx-auto max-w-lg space-y-4 p-6">
       <Card className="space-y-3 p-6 text-center">
-        <h1 className="text-2xl font-semibold">Thank you for your order!</h1>
+        <h1 className="font-heading text-2xl font-bold">Thank you for your order!</h1>
         <p className="text-sm text-muted">
           {orderId
             ? `Your order (#${orderId}) has been received and is being processed.`

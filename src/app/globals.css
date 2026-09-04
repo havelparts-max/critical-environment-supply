@@ -8,8 +8,9 @@
   --border: #e2e8f0;
   --muted: #64748b;
   --muted-bg: #f1f5f9;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
+  /* Matches the Havel Parts brand blue (havelparts.com), the user's sister site. */
+  --primary: #5370ff;
+  --primary-hover: #3f56e0;
   --primary-foreground: #ffffff;
   --destructive: #dc2626;
   --success: #16a34a;
@@ -28,8 +29,9 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-destructive: var(--destructive);
   --color-success: var(--success);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-lato);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-cabin);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -41,8 +43,8 @@
     --border: #253046;
     --muted: #94a3b8;
     --muted-bg: #0f1830;
-    --primary: #3b82f6;
-    --primary-hover: #60a5fa;
+    --primary: #7c93ff;
+    --primary-hover: #98abff;
     --primary-foreground: #0b1120;
     --destructive: #f87171;
     --success: #4ade80;
@@ -52,5 +54,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-lato), ui-sans-serif, system-ui, sans-serif;
 }
